@@ -17,7 +17,7 @@ function open(next,userGesture=true,push=true){
    if(userGesture && typeof film.webkitEnterFullscreen==='function'){film.removeAttribute('playsinline');try{film.webkitEnterFullscreen();}catch{}}
    film.play().catch(error=>{if(error.name!=='AbortError')playError.hidden=false;});
   }
-  stadium=document.createElement('iframe');stadium.title='Interactive stadium: wire, circular cloud, flood and Neuromancer';stadium.src='scene/';stadium.loading='lazy';stadiumHost.replaceChildren(stadium);observer.observe(stadiumHost);
+  stadium=document.createElement('iframe');stadium.title='Interactive stadium: wire, circular cloud, flood and Neuromancer';stadium.src='scene/?v=r18';stadium.loading='lazy';stadiumHost.replaceChildren(stadium);observer.observe(stadiumHost);
   stadium.addEventListener('load',()=>{const box=stadiumHost.getBoundingClientRect();stadium.contentWindow.postMessage({type:'stadium-visibility',visible:Math.max(0,Math.min(innerHeight,box.bottom)-Math.max(0,box.top))/box.height>=.75},location.origin)});
  }else{
   film.pause();const iframe=document.createElement('iframe');iframe.title='Jack In demo game and discount reveal';iframe.src='../';iframe.allow='fullscreen; autoplay';iframe.allowFullscreen=true;host.replaceChildren(iframe);
