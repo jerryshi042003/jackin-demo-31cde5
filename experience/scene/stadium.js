@@ -14,9 +14,9 @@ const controls=new OrbitControls(camera,renderer.domElement);controls.target.set
 scene.add(new T.HemisphereLight(0xc1ddf2,0x07100b,.3));const key=new T.DirectionalLight(0xc1e7ff,2);key.position.set(-40,100,-40);scene.add(key);
 const lights=[];for(const x of [-32,32])for(const z of [-36,36]){let l=new T.PointLight(0x93e4ff,2000,110,2);l.position.set(x,24,z);scene.add(l);lights.push(l)}
 const ease=(a,b,t)=>{let u=Math.max(0,Math.min(1,(t-a)/(b-a)));return u*u*(3-2*u)};
-let time=0,manual=false,last=performance.now(),visibleScene=window.parent===window;
-addEventListener('message',e=>{if(e.origin===location.origin&&e.source===parent&&e.data?.type==='stadium-visibility'){visibleScene=e.data.visible;last=performance.now()}});controls.addEventListener('start',()=>{manual=true});renderer.domElement.style.touchAction='pan-y';renderer.domElement.addEventListener('wheel',e=>e.stopImmediatePropagation(),{capture:true,passive:true});
-new IntersectionObserver(entries=>{visibleScene=entries[0].intersectionRatio>=.25;last=performance.now();},{threshold:.25}).observe(renderer.domElement);
+let time=0,manual=false,last=performance.now(),visibleScene=window.parent===window,parentManaged=false;
+addEventListener('message',e=>{if(e.origin===location.origin&&e.source===parent&&e.data?.type==='stadium-visibility'){parentManaged=true;visibleScene=e.data.visible;last=performance.now()}});controls.addEventListener('start',()=>{manual=true});renderer.domElement.style.touchAction='pan-y';renderer.domElement.addEventListener('wheel',e=>e.stopImmediatePropagation(),{capture:true,passive:true});
+new IntersectionObserver(entries=>{if(!parentManaged){visibleScene=entries[0].intersectionRatio>=.75;last=performance.now();}},{threshold:.75}).observe(renderer.domElement);
 const metrics={ready:false,frames:0,errors:[],renderCalls:0};window.motionMetrics=metrics;window.addEventListener('error',e=>metrics.errors.push(e.message));
 try{
  const draco=new DRACOLoader().setDecoderPath('vendor/examples/jsm/libs/draco/gltf/');const loader=new GLTFLoader().setDRACOLoader(draco);

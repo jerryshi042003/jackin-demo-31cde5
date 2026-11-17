@@ -8,10 +8,15 @@ function open(next,userGesture=true,push=true){
  mode=next;demo.hidden=mode!=='demo';host.hidden=mode!=='game';playError.hidden=true;
  if(!dialog.open)dialog.showModal();if(push)history.pushState({experience:mode},'',`#${mode}`);
  if(mode==='demo'){
+  if(userGesture)window.webkit?.messageHandlers?.experienceOrientation?.postMessage('demo');
   film.currentTime=0;demo.scrollTop=0;
-  // iPhone requires fullscreen to begin inside this tap, not after an await.
-  if(userGesture && typeof film.webkitEnterFullscreen==='function'){film.removeAttribute('playsinline');try{film.webkitEnterFullscreen();}catch{ /* play without playsinline also enters the native iPhone player. */ }}
-  film.play().catch(error=>{if(error.name!=='AbortError')playError.hidden=false;});
+  const nativePlayer=window.webkit?.messageHandlers?.nativeDemo;
+  if(userGesture && nativePlayer){film.pause();nativePlayer.postMessage({url:film.src});}
+  else{
+   // Browser fullscreen must begin inside the tap, without waiting for a promise.
+   if(userGesture && typeof film.webkitEnterFullscreen==='function'){film.removeAttribute('playsinline');try{film.webkitEnterFullscreen();}catch{}}
+   film.play().catch(error=>{if(error.name!=='AbortError')playError.hidden=false;});
+  }
   stadium=document.createElement('iframe');stadium.title='Interactive stadium: wire, circular cloud, flood and Neuromancer';stadium.src='scene/';stadium.loading='lazy';stadiumHost.replaceChildren(stadium);observer.observe(stadiumHost);
   stadium.addEventListener('load',()=>{const box=stadiumHost.getBoundingClientRect();stadium.contentWindow.postMessage({type:'stadium-visibility',visible:Math.max(0,Math.min(innerHeight,box.bottom)-Math.max(0,box.top))/box.height>=.75},location.origin)});
  }else{
@@ -19,14 +24,16 @@ function open(next,userGesture=true,push=true){
  }
  syncPreview();if(userGesture && !(mode==='demo' && typeof film.webkitEnterFullscreen==='function'))fullScreen();
 }
-function returnToEntrance(){const pushed=Boolean(history.state?.experience);dialog.close();if(pushed)history.back();else history.replaceState(null,'',location.pathname+location.search);}
+function returnToEntrance(){window.webkit?.messageHandlers?.experienceOrientation?.postMessage('entrance');const pushed=Boolean(history.state?.experience);dialog.close();if(pushed)history.back();else history.replaceState(null,'',location.pathname+location.search);}
 document.querySelector('#open-demo').addEventListener('click',()=>open('demo'));
 document.querySelector('#open-game').addEventListener('click',()=>open('game'));
 document.querySelector('#back').addEventListener('click',returnToEntrance);
 document.querySelector('.scroll-cue').addEventListener('click',e=>{e.preventDefault();film.pause();playError.hidden=true;document.querySelector('#interactive').scrollIntoView({behavior:'smooth'});});
 dialog.addEventListener('cancel',e=>{e.preventDefault();returnToEntrance();});
 dialog.addEventListener('close',()=>{film.pause();host.replaceChildren();observer.disconnect();stadiumHost.replaceChildren();stadium=null;mode=null;if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});syncPreview();});
+film.addEventListener('webkitbeginfullscreen',()=>window.webkit?.messageHandlers?.experienceOrientation?.postMessage('demo'));
 film.addEventListener('playing',()=>{playError.hidden=true;});
+addEventListener('native-demo-ended',()=>document.querySelector('#interactive').scrollIntoView({behavior:'smooth'}));
 film.addEventListener('ended',()=>{if(film.webkitDisplayingFullscreen)film.webkitExitFullscreen?.();document.querySelector('#interactive').scrollIntoView({behavior:'smooth'});});
 addEventListener('popstate',()=>{if(dialog.open)dialog.close();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)film.pause();syncPreview();});
