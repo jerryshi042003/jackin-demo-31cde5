@@ -8,13 +8,16 @@ function open(next,userGesture=true,push=true){
  mode=next;demo.hidden=mode!=='demo';host.hidden=mode!=='game';playError.hidden=true;
  if(!dialog.open)dialog.showModal();if(push)history.pushState({experience:mode},'',`#${mode}`);
  if(mode==='demo'){
-  film.currentTime=0;demo.scrollTop=0;film.play().catch(error=>{if(error.name!=='AbortError')playError.hidden=false;});
+  film.currentTime=0;demo.scrollTop=0;
+  // iPhone requires fullscreen to begin inside this tap, not after an await.
+  if(userGesture && typeof film.webkitEnterFullscreen==='function'){film.removeAttribute('playsinline');try{film.webkitEnterFullscreen();}catch{ /* play without playsinline also enters the native iPhone player. */ }}
+  film.play().catch(error=>{if(error.name!=='AbortError')playError.hidden=false;});
   stadium=document.createElement('iframe');stadium.title='Interactive stadium: wire, circular cloud, flood and Neuromancer';stadium.src='scene/';stadium.loading='lazy';stadiumHost.replaceChildren(stadium);observer.observe(stadiumHost);
   stadium.addEventListener('load',()=>{const box=stadiumHost.getBoundingClientRect();stadium.contentWindow.postMessage({type:'stadium-visibility',visible:Math.max(0,Math.min(innerHeight,box.bottom)-Math.max(0,box.top))/box.height>=.75},location.origin)});
  }else{
   film.pause();const iframe=document.createElement('iframe');iframe.title='Jack In demo game and discount reveal';iframe.src='../';iframe.allow='fullscreen; autoplay';iframe.allowFullscreen=true;host.replaceChildren(iframe);
  }
- syncPreview();if(userGesture)fullScreen();
+ syncPreview();if(userGesture && !(mode==='demo' && typeof film.webkitEnterFullscreen==='function'))fullScreen();
 }
 function returnToEntrance(){const pushed=Boolean(history.state?.experience);dialog.close();if(pushed)history.back();else history.replaceState(null,'',location.pathname+location.search);}
 document.querySelector('#open-demo').addEventListener('click',()=>open('demo'));
@@ -29,3 +32,15 @@ addEventListener('popstate',()=>{if(dialog.open)dialog.close();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)film.pause();syncPreview();});
 reduced.addEventListener('change',syncPreview);syncPreview();
 if(location.hash==='#demo'||location.hash==='#game')open(location.hash.slice(1),false,false);
+
+const shareURL='https://neuromancer-motion-site.vercel.app/';
+const shareDialog=document.querySelector('#share-dialog');
+document.querySelector('#share').addEventListener('click',async()=>{
+ if(navigator.share){try{await navigator.share({title:'Neuromancer · Demo & Game',url:shareURL});return;}catch(error){if(error.name==='AbortError')return;}}
+ shareDialog.showModal();
+});
+document.querySelector('#close-share').addEventListener('click',()=>shareDialog.close());
+document.querySelector('#copy-link').addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText(shareURL);document.querySelector('#share-status').textContent='Link copied';}
+ catch{document.querySelector('#share-status').textContent=shareURL;}
+});

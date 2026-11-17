@@ -4,3 +4,5 @@
 @media(orientation:portrait){.film-section{height:auto;min-height:0;padding:76px 0 66px}.film-section #film{position:relative;inset:auto;height:auto;aspect-ratio:16/9;width:100%}#interactive{padding-top:12px}#interactive h2{margin-top:10px}#stadium-host{height:68svh;min-height:360px}}
 
 #interactive{padding-top:76px}#interactive h2{margin-top:0}#play-error{top:90px;font-size:15px}
+
+header{justify-content:space-between}.share{width:40px;height:40px}.share svg{width:20px;height:20px}#share-dialog{inset:0;margin:auto;width:min(90vw,380px);height:auto;max-height:90svh;padding:28px;border:1px solid #ffffff35;border-radius:32px;text-align:center;background:#101b20}#share-dialog::backdrop{background:#000b;backdrop-filter:blur(12px)}#share-dialog h2{font-size:22px;font-weight:500}#share-dialog img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:20px}#close-share{margin-left:auto;width:40px;height:40px;font-size:28px}#copy-link{border:1px solid #ffffff50;background:#ffffff18;border-radius:30px;padding:14px 28px;font-size:17px}#share-status{font-size:15px;overflow-wrap:anywhere}#share-dialog:not([open]){display:none}
