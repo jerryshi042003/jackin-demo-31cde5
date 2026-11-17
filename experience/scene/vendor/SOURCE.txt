@@ -1,0 +1,1 @@
+three r160, MIT, from https://cdn.jsdelivr.net/npm/three@0.160.0 (downloaded 2026-11-13)

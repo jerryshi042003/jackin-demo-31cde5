@@ -16,15 +16,15 @@
 <video id="preview" muted autoplay loop playsinline preload="metadata" poster="https://neuromancer-motion-site.vercel.app/assets/lights.jpg" src="https://neuromancer-motion-site.vercel.app/media/takeover_story.mp4" aria-hidden="true" tabindex="-1"></video><span class="shade"></span>
 <span class="label">Demo <span class="round" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z"/></svg></span></span>
 </button>
-<button class="choice game" id="open-game" aria-label="Open game"><canvas id="spiral" aria-hidden="true"></canvas><span class="label">Game <span class="round" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span></button>
+<button class="choice game" id="open-game" aria-label="Open game"><video id="game-preview" muted autoplay loop playsinline preload="metadata" src="../walkout.mp4" aria-hidden="true"></video><span class="shade"></span><canvas id="spiral" aria-hidden="true"></canvas><span class="label">Game <span class="round" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span></button>
 </div>
-<footer><a href="https://neuromancer-motion-site.vercel.app/stadium.html">3D study</a><a href="https://neuromancer-motion-site.vercel.app/">Assets</a></footer>
+<footer><span>Film + interactive stadium</span><a href="assets.html">Assets</a></footer>
 </main>
 <dialog id="experience" aria-label="Neuromancer experience">
 <button class="back round" id="back" aria-label="Back to Demo and Game"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button>
-<video id="film" controls playsinline preload="metadata" poster="https://neuromancer-motion-site.vercel.app/assets/hero-r12.jpg" src="https://neuromancer-motion-site.vercel.app/media/selected-sequence-r12.mp4" hidden></video>
+<div id="demo-body" hidden><section class="film-section"><video id="film" controls playsinline preload="metadata" poster="https://neuromancer-motion-site.vercel.app/assets/hero-r12.jpg" src="https://neuromancer-motion-site.vercel.app/media/selected-sequence-r12.mp4"></video><p id="play-error" role="status" hidden>Tap Play to start the film.</p><a class="scroll-cue" href="#interactive">Explore the stadium ↓</a></section><section id="interactive"><h2>Inside the matrix</h2><div id="stadium-host"></div><p class="gesture">Drag sideways to orbit · scroll to move on</p></section></div>
 <div id="game-host" hidden></div>
-<p id="play-error" role="status" hidden>Tap Play to start the film.</p>
+
 </dialog>
 <noscript><p class="no-script"><a href="https://jerryshi042003.github.io/jackin-demo-31cde5/experience/#demo">Watch demo</a> · <a href="https://jerryshi042003.github.io/jackin-demo-31cde5/">Open game</a></p></noscript>
 </body></html>

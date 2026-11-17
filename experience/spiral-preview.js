@@ -10,7 +10,7 @@ const rnd=(a,b)=>a+Math.random()*(b-a), pick=a=>a[(Math.random()*a.length)|0], c
 const easeOut=t=>1-Math.pow(1-clamp(t,0,1),3), easeBack=t=>{ t=clamp(t,0,1); const c=1.70158; return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2); };
 function txt(s,x,y,size,col,al='center',glow=0,weight=700){ g.font=weight+' '+size+'px '+MONO; g.textAlign=al; g.fillStyle=col; g.shadowColor=col; g.shadowBlur=glow; g.fillText(s,x,y); g.shadowBlur=0; }
 let time=0, last=performance.now();
-function bg(){ const r=g.createRadialGradient(W/2,H*.45,0,W/2,H*.45,H*.7); r.addColorStop(0,'#06231f'); r.addColorStop(1,'#020807'); g.fillStyle=r; g.fillRect(0,0,W,H); }
+function bg(){g.clearRect(0,0,W,H);}
 
 const ARMS=Array.from({length:190},(_,i)=>({f:Math.pow((i+1)/190,.8),arm:i%2,j:rnd(-.22,.22),jr:rnd(-.06,.06),gold:Math.random()<.22,tw:rnd(0,6.28)}));
 let press=-9;
