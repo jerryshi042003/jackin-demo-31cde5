@@ -37,7 +37,9 @@ try{
  // The matrix is actual pitch-aligned geometry, softly revealed under the impact.
  const gridVertices=[];for(let x=-50;x<=50;x+=5)gridVertices.push(x,.22,-30,x,.22,30);for(let z=-30;z<=30;z+=5)gridVertices.push(-50,.22,z,50,.22,z);
  const gridGeometry=new T.BufferGeometry();gridGeometry.setAttribute('position',new T.Float32BufferAttribute(gridVertices,3));const gridMaterial=new T.LineBasicMaterial({color:0x6ce8dc,transparent:true,opacity:0,depthWrite:false});const grid=new T.LineSegments(gridGeometry,gridMaterial);scene.add(grid);
- const poolMaterial=new T.MeshBasicMaterial({color:0x2bbeb8,transparent:true,opacity:0,depthWrite:false});const pool=new T.Mesh(new T.PlaneGeometry(102,62),poolMaterial);pool.rotation.x=-Math.PI/2;pool.position.y=.16;scene.add(pool);
+ const poolMaterial=new T.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,side:T.DoubleSide,uniforms:{age:{value:0},strength:{value:0}},vertexShader:`uniform float age;uniform float strength;varying vec2 field;varying float crest;void main(){field=position.xy;float r=length(vec2(field.x,field.y*1.25));float edge=1.-smoothstep(.7,1.,max(abs(field.x)/52.,abs(field.y)/31.));float outward=pow(.5+.5*sin(r*.36-age*3.5),5.);float crosswave=pow(.5+.5*sin(field.x*.25+age*2.2),8.);crest=outward+.45*crosswave;vec3 p=position;p.z+=strength*edge*(.5+3.8*crest);gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`,fragmentShader:`uniform float strength;varying vec2 field;varying float crest;void main(){float edge=1.-smoothstep(.76,1.,max(abs(field.x)/52.,abs(field.y)/31.));vec3 c=mix(vec3(.015,.18,.2),vec3(.24,.95,.9),clamp(crest,0.,1.));gl_FragColor=vec4(c,edge*strength*(.12+.34*crest));}`});
+ const pool=new T.Mesh(new T.PlaneGeometry(104,62,128,80),poolMaterial);pool.rotation.x=-Math.PI/2;pool.position.y=.25;scene.add(pool);
+
  const wirePath=new T.CatmullRomCurve3([new T.Vector3(-51,.5,29),new T.Vector3(-36,.5,29),new T.Vector3(0,.7,29),new T.Vector3(47,.7,27),new T.Vector3(45,1,8),new T.Vector3(30,5,-7),new T.Vector3(9,14,-14),new T.Vector3(-12,30,-8),new T.Vector3(0,55,0)]);
  const wireGeo=new T.BufferGeometry().setFromPoints(wirePath.getPoints(700));const wireMaterial=new T.LineBasicMaterial({color:0x8beeff,transparent:true,depthWrite:false});scene.add(new T.Line(wireGeo,wireMaterial));const wireGlow=new T.PointLight(0x67ddff,800,28,2);scene.add(wireGlow);const tip=new T.Mesh(new T.SphereGeometry(.27,12,8),new T.MeshBasicMaterial({color:0xc5faff}));scene.add(tip);
  const phase=document.querySelector('#phase');
@@ -47,7 +49,7 @@ try{
   phase.textContent=sequenceTime<6?'Wire':t<7?'Souls from the stands':t<11?'Circular cloud':t<19?'Cloudburst → flood':t<24?'Waves → matrix':t<30?'Neuromancer':t<36?'Rise above the roof':'Neuromancer';
   if(!manual){const lift=ease(29,40,t);camera.position.set(100+15*ease(8,20,t),140+45*lift,-135);controls.target.set(0,16+57*lift,0);}controls.update();
   lights.forEach((l,j)=>l.intensity=1700+1400*Math.pow(.5+.5*Math.sin(t*1.1-j*.65),6));key.intensity=1.1+.15*Math.sin(t*.6);
-  gridMaterial.opacity=ease(9,14,t)*(.6+.1*Math.sin(t*2))*(1-.5*ease(25,30,t));poolMaterial.opacity=ease(12,18,t)*.09*(1-ease(24,28,t));
+  gridMaterial.opacity=ease(9,14,t)*(.6+.1*Math.sin(t*2))*(1-.5*ease(25,30,t));poolMaterial.uniforms.age.value=Math.max(0,t-9);poolMaterial.uniforms.strength.value=ease(12,18,t)*(1-ease(24,28,t));
   const turn=titleTurn(t);targetQ.copy(camera.quaternion);title.quaternion.copy(flat).slerp(targetQ,turn);const drift=t>=41?performance.now()/1000:0;title.position.set(drift?.45*Math.sin(drift*.6):0,titleHeight(t)+(drift?.65*Math.sin(drift*.8):0),0);if(drift)title.rotateY(.025*Math.sin(drift*.5));title.scale.setScalar(1+.6*turn);titleMaterial.opacity=ease(25,28,t);
   for(let i=0;i<N;i++){
    particle(i,t,origins,p);const build=ease(23+seed(i,4)*1.8,28+seed(i,4),t),off=i*3;
