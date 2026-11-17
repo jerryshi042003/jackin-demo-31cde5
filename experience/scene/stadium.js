@@ -93,7 +93,7 @@ try{
 const stage=document.querySelector('#stage');
 function fitStage(){
  const width=Math.max(1,stage.clientWidth),height=Math.max(1,stage.clientHeight);
- camera.aspect=width/height;camera.fov=2*Math.atan(Math.tan(Math.PI/6)/camera.aspect)*180/Math.PI;
+ camera.aspect=width/height;camera.fov=Math.max(35,2*Math.atan(Math.tan(Math.PI/6)/camera.aspect)*180/Math.PI);
  camera.updateProjectionMatrix();renderer.setSize(width,height,false);
  renderer.domElement.style.width='100%';renderer.domElement.style.height='100%';
 }
