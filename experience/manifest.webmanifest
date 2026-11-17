@@ -1,0 +1,18 @@
+{
+  "name": "Neuromancer",
+  "short_name": "Neuromancer",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#070b0e",
+  "theme_color": "#070b0e",
+  "icons": [
+    {
+      "src": "https://neuromancer-motion-site.vercel.app/assets/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "orientation": "any",
+  "scope": "./"
+}
