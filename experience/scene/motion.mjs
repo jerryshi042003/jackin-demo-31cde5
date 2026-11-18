@@ -34,5 +34,5 @@ export function particle(i,t,origins,out){
  }else out[3]=ease(0,1.3,t)*.72;
  out[0]=x;out[1]=y;out[2]=z;
 }
-export function titleHeight(t){return 2.2+92*ease(30,36,t)}
-export function titleTurn(t){return ease(36,41,t)}
+export function titleHeight(t){return 2.2+92*ease(21,27,t)}
+export function titleTurn(t){return ease(24.7,30,t)}

@@ -26,7 +26,7 @@ if (!['#demo', '#game'].includes(location.hash)) {
   }
   const frame = document.createElement('iframe');
   frame.title = 'Orbit the stadium';
-  frame.src = 'scene/?landing&warm&v=r20';
+  frame.src = 'scene/?landing&warm&v=r21';
   stage.append(frame);
 }
 

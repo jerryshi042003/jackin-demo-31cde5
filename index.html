@@ -4,17 +4,23 @@
 <meta charset="utf-8"><meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#020807"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>JACK IN — concept demo</title>
+<title>Jack In · LA Galaxy demo game</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   html,body{margin:0;height:100%;background:#020807;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
   html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none}
   canvas{position:fixed;top:0;left:0;width:100%;height:100%;display:block;cursor:pointer}
-#action{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent;color:transparent;cursor:pointer}#action:focus-visible{outline:2px solid #eafffb;outline-offset:-6px}
+#action{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent;color:transparent;cursor:pointer}#action[data-stage="boot"]:focus-visible{outline:none}#action:focus-visible{outline:2px solid #eafffb;outline-offset:-6px}
+#game-qr{display:none}
+@media(min-width:760px) and (min-height:440px) and (hover:hover){
+ #game-qr:not([hidden]){position:fixed;right:max(26px,env(safe-area-inset-right));bottom:max(23px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px;color:white;font:500 15px/1.38 Sora,sans-serif;pointer-events:none;text-shadow:0 1px 4px #000}
+ #game-qr img{width:100px;height:100px;border-radius:5px}#game-qr span{max-width:108px}
+}
 </style>
 </head>
 <body>
-<canvas id="c" aria-hidden="true"></canvas><button id="action" aria-label="Jack in — demo game"></button>
+<canvas id="c" aria-hidden="true"></canvas><button id="action" data-stage="boot" aria-label="Jack in — demo game"></button>
+<aside id="game-qr"><img src="experience/icons/game-qr.png" alt="QR code linking directly to Jack In"><span>Scan to play for a demo prize</span></aside>
 <script>
 (() => {
 const AUTO = window.AUTO || /auto=1/.test(location.search);
@@ -61,7 +67,7 @@ initRain(); addEventListener('resize',initRain);
 function go(s){ state=s; st=0; }
 // ---- full-screen "jack in" warp between the start screen and the game
 let stars=[];
-function startWarp(){ go('warp'); stars=Array.from({length:240},()=>({a:rnd(0,6.2832),z:rnd(.05,1),c:pick([TEAL,TEAL,WHITE,MAG,BLUE]),k:pick(KANA)}));
+function startWarp(){document.getElementById("game-qr").hidden=true; go('warp'); stars=Array.from({length:240},()=>({a:rnd(0,6.2832),z:rnd(.05,1),c:pick([TEAL,TEAL,WHITE,MAG,BLUE]),k:pick(KANA)}));
   try{ navigator.vibrate && navigator.vibrate([30,40,30,40,30,40,120]); }catch(e){}
   try{ const el=document.documentElement; if(window.parent===window && el.requestFullscreen) el.requestFullscreen().catch(()=>{}); }catch(e){} }
 const SHOWCASE=false; // Playable demo; AUTO is only the existing review playback mode.
@@ -97,7 +103,7 @@ function crack(){ if(phase!=='cache') return; phase='crack'; pt=0; cracks=Array.
 function goFull(){ if(window.parent!==window)return; try{ const el=document.documentElement, f=el.requestFullscreen||el.webkitRequestFullscreen; if(f && !document.fullscreenElement) { const r=f.call(el); if(r&&r.catch) r.catch(()=>{}); } }catch(e){} }
 function tap(x,y){ goFull();
   for(const b of btns){ if(x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h){ b.fn(); return; } }
-  if(state==='boot'){ if(st>0.25 && !entering){ entering=true; press=time; } }
+  if(state==='boot'){ if(!entering){ entering=true; press=time; } }
   else if(state==='play' && !SHOWCASE) hitTry();
   else if(state==='result' && phase==='cache') crack();
   else if(state==='result' && phase==='card' && pt>1.1) start();
@@ -183,7 +189,7 @@ let press=-9, entering=false;
 function galaxy(cx,cy,R){
   const k=clamp((time-press)/.6,0,1), suck = k<1 ? 1-easeOut(k)*.85 : 1, pulse=.5+.5*Math.sin(time*3.2);
   for(let i=0;i<2;i++){ const q=((time*.55+i*.5)%1); g.strokeStyle='rgba(47,245,208,'+(1-q)*.45+')'; g.lineWidth=1.5; g.beginPath(); g.arc(cx,cy,R*(1.05+q*.9),0,6.2832); g.stroke(); }
-  g.strokeStyle='rgba(47,245,208,.5)'; g.lineWidth=1; g.setLineDash([2,7]); g.lineDashOffset=-time*26; g.beginPath(); g.arc(cx,cy,R*1.16,0,6.2832); g.stroke(); g.setLineDash([]);
+  const focused=action.matches(':focus-visible'); g.strokeStyle=focused?'#f3fffc':'rgba(47,245,208,.5)'; g.lineWidth=focused?3:1; g.setLineDash([2,7]); g.lineDashOffset=-time*26; g.beginPath(); g.arc(cx,cy,R*1.16,0,6.2832); g.stroke(); g.setLineDash([]);
   g.strokeStyle=TEAL; g.lineWidth=2.5; g.lineCap='round'; g.shadowColor=TEAL; g.shadowBlur=12;
   for(let i=0;i<3;i++){ const a0=-time*1.3+i*2.0944; g.beginPath(); g.arc(cx,cy,R*1.04,a0,a0+.7); g.stroke(); } g.shadowBlur=0;
   for(const d of ARMS){ const r=(R*(.14+.8*d.f)+d.jr*R)*suck, an=d.f*5.2+d.arm*Math.PI+d.j+time*(1.5-d.f*1.05)+(1-suck)*6, x=cx+Math.cos(an)*r, y=cy+Math.sin(an)*r*.92, tw=.6+.4*Math.sin(time*4+d.tw);
@@ -203,7 +209,7 @@ function frame(now){
     txt('LA GALAXY × NEUROMANCER',W/2,Math.max(46,H*.09),Math.min(15,W*.037),WHITE,'center',0,500);
     const R=Math.min(86,W*.22,H*.145), gy=H*.67;
     galaxy(W/2,gy,R);
-    txt('Demo game',W/2,Math.min(H-25,gy+R*1.16+72),14,WHITE,'center',0,400);
+    txt('Play for a demo prize',W/2,Math.min(H-25,gy+R*1.16+72),14,WHITE,'center',0,400);
     if(entering && time-press>.55) startWarp();
     if(AUTO && st>3.2 && !entering){entering=true;press=time;}
 

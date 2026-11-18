@@ -12,25 +12,45 @@ void main(){
  vec3 pos=mix(origin,vec3(cx,8.,cz),inward);pos.y=mix(pos.y,cloudY,lift);
  pos.x+=sin(lift*3.14159265)*sin(t*1.1+c*9.)*2.;pos.z+=sin(lift*3.14159265)*cos(t+c*9.)*2.;
  float opacity=smoothstep(0.,1.3,t)*.72;
- if(t>=9.){
-  float age=t-9.,drop=smoothstep(9.+d*2.,13.+d*2.,t),impact=smoothstep(12.+d*2.,15.+d*2.,t);
-  if(group<.5 && t<21.){
-   float rr=rad+smoothstep(9.,12.,t)*8.+sin(t*1.2+b*4.)*.8;
-   pos=vec3(rr*cos(theta),cloudY,rr*sin(theta));opacity=1.1*(1.-smoothstep(17.,21.,t));
-  }else{
-   pos=vec3(cx*(1.-drop*.92),mix(cloudY,1.+c,drop*drop),cz*(1.-drop*.92));
-   float spread=smoothstep(12.,19.,t),px=(a*2.-1.)*52.*spread,pz=(b*2.-1.)*31.*spread;
-   float wave=length(vec2(px,pz))*.37-age*3.5;
-   float edge=1.-smoothstep(.72,1.,max(abs(px)/54.,abs(pz)/33.));
-   float crest=2.+5.*pow(.5+.5*cos(wave),5.)+3.*pow(.5+.5*sin(px*.22+age*2.1),6.);
-   float splash=c>.85?7.*pow(max(0.,sin(age*2.3+d*12.)),4.):0.;
-   vec3 flood=vec3(px+edge*1.4*sin(pz*.28-age*2.),.5+c*.8+edge*(crest*(.3+c*.7)+splash),pz+edge*sin(px*.3+age*2.4));
-   pos=mix(pos,flood,impact);opacity=.65;
-   if(group>.5&&group<2.5&&t<23.){float q=fract(age*.36+b),join=smoothstep(19.,23.,t),rr=2.+4.*(1.-q)+c*2.;pos=mix(vec3(rr*cos(theta),55.*(1.-q*q),rr*sin(theta)),pos,join);}
-  }
+ // The halo tightens as it crests. The brightest strands fall first, then
+ // a radial sheet travels from the impact to the touchlines.
+ float settle=smoothstep(6.7,8.,t);
+ vec3 ring=vec3((32.+(b-.5)*1.25)*cos(theta),55.+.42*sin(theta*3.+t)+.65*c,(32.+(b-.5)*1.25)*sin(theta));
+ pos=mix(pos,ring,settle);
+ float inwardTime=smoothstep(7.85+d*.48,8.85+d*.48,t);
+ float fall=clamp((t-8.5-d*.64)/1.15,0.,1.);
+ float impact=9.65+d*.64;
+ float direction=a*6.2831853+.12*sin(t*.8+b*8.);
+ vec2 dir=vec2(cos(direction),sin(direction));
+ float limit=min(51./max(.001,abs(dir.x)),30./max(.001,abs(dir.y)));
+ float speed=17.+13.*b;
+ float range=limit*sqrt(b),r=min(range,max(0.,t-impact)*speed);
+ float rangeFraction=r/max(1.,range);
+ vec2 runoff=dir*r;
+ float crest=pow(.5+.5*cos(r*.40-(t-impact)*5.),4.);
+ float crestHeight=sin(rangeFraction*3.14159)*(2.+4.*c)*crest;
+ vec3 wet=vec3(runoff.x,.45+.65*c+crestHeight,runoff.y);
+ if(t>=7.85){
+   float jitter=(.5+2.*b)*fall;
+   vec3 jet=vec3(ring.x*(1.-inwardTime)+jitter*cos(theta),mix(ring.y,.45,fall*fall),ring.z*(1.-inwardTime)+jitter*sin(theta));
+   pos=mix(jet,wet,smoothstep(impact-.13,impact+.23,t));
+   if(group<.5){
+     vec3 rim=ring;rim.xz*=1.+.09*smoothstep(8.,11.,t);
+     pos=mix(rim,wet,smoothstep(13.,15.7,t));
+   }else if(group<1.5){
+     float q=fract((t-8.85)*.83+b);
+     float width=.5+2.5*sqrt(c)*q;
+     vec3 stream=vec3(width*cos(a*6.283),55.*(1.-q*q),width*sin(a*6.283));
+     pos=mix(pos,stream,smoothstep(9.8,10.65,t)*(1.-smoothstep(13.,15.4,t)));
+   }
+   opacity=mix(.75,.34,smoothstep(12.,16.,t));
  }
- float build=smoothstep(23.+buildSeed*1.8,28.+buildSeed,t);
- pos=mix(pos,(titleMatrix*vec4(logoTarget,1.)).xyz,build);visibility=mix(opacity,.055,build);
+ float glyph=clamp(logoTarget.x/84.+.5,0.,1.);
+ float build=smoothstep(15.8+glyph*2.3+buildSeed*.45,18.5+glyph*2.3+buildSeed*.45,t);
+ vec3 destination=(titleMatrix*vec4(logoTarget,1.)).xyz;
+ pos=mix(pos,destination,build);
+ pos.y+=sin(build*3.14159)*(.8+1.4*c);
+ visibility=mix(opacity,.045,build);
  vec4 p=modelViewMatrix*vec4(pos,1.);gl_Position=projectionMatrix*p;
  gl_PointSize=clamp(size*pixelRatio*180./-p.z,.65,5.);
 }`;
