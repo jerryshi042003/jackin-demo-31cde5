@@ -39,3 +39,6 @@ header{justify-content:space-between}.share{width:40px;height:40px}.share svg{wi
   .arrival {min-height:290px;grid-template-rows:40px minmax(0,1fr) 76px}
   .choice .label {bottom:10px}
 }
+
+/* Opening the modal moves focus to Back. Keyboard navigation keeps its cue. */
+@media (forced-colors:none){html:not([data-keyboard]) #back:focus{outline:none}}
