@@ -18,9 +18,9 @@ export async function createTurf(renderer){
    float stripe=.5+.5*sin((p.x+55.)*.57);
    vec3 healthy=mix(vec3(.055,.16,.035),vec3(.095,.235,.05),stripe);
    healthy*=.8+variation*.85;
-   float goal=exp(-pow((abs(p.x)-49.)/4.8,2.)-pow(p.y/9.,2.));
-   float center=exp(-pow(p.x/15.,2.)-pow(p.y/12.,2.))*.28;
-   float lanes=exp(-pow(p.y/7.,2.))*exp(-pow(p.x/43.,4.))*.13;
+   float goal=exp(-pow(abs((abs(p.x)-49.)/4.8),2.)-pow(abs(p.y/9.),2.));
+   float center=exp(-pow(abs(p.x/15.),2.)-pow(abs(p.y/12.),2.))*.28;
+   float lanes=exp(-pow(abs(p.y/7.),2.))*exp(-pow(abs(p.x/43.),4.))*.13;
    float broken=.6+.4*sin(p.x*1.8+sin(p.y*1.9))*sin(p.y*2.1);
    float wear=clamp((goal*.65+center+lanes)*broken,0.,.65);
    vec3 worn=vec3(.18,.155,.065)*(.6+variation);

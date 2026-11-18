@@ -26,7 +26,7 @@ function galaxy(cx,cy,R){
 
 }
 const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)");
-function frame(now){ time+=document.hidden||document.querySelector("#experience").open?0:Math.min(.05,(now-last)/1000); last=now; bg(); if(time-press>3.2) press=time; galaxy(W/2,H*.43,Math.min(110,W*.23,H*.24)); if(!reduceMotion.matches)requestAnimationFrame(frame); }
+function frame(now){ time+=document.hidden||document.querySelector("#experience").open?0:Math.min(.05,(now-last)/1000); last=now; if(document.hidden||document.querySelector("#experience").open){if(!reduceMotion.matches)requestAnimationFrame(frame);return;} bg(); if(time-press>3.2) press=time; galaxy(W/2,H*.43,Math.min(110,W*.23,H*.24)); if(!reduceMotion.matches)requestAnimationFrame(frame); }
 requestAnimationFrame(frame);
 new ResizeObserver(()=>{fit();if(reduceMotion.matches)frame(performance.now());}).observe(cv);
 reduceMotion.addEventListener("change",()=>requestAnimationFrame(frame));

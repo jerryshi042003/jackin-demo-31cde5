@@ -5,10 +5,10 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {titleHeight,titleTurn,seed} from './motion.mjs';
 import {vertexShader,fragmentShader} from './particles.mjs';
-import {createTurf} from './turf.mjs';
+import {createTurf} from './turf.mjs?v=r19';
 const status=document.querySelector('#status');
 const scene=new T.Scene();scene.background=new T.Color('#071315');scene.fog=new T.FogExp2(0x071315,.0015);
-const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.7;document.querySelector('#stage').appendChild(renderer.domElement);
+const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio, 2, Math.sqrt(2600000 / (innerWidth * innerHeight))));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.7;document.querySelector('#stage').appendChild(renderer.domElement);
 const camera=new T.PerspectiveCamera(2*Math.atan(Math.tan(Math.PI/6)/(innerWidth/innerHeight))*180/Math.PI,innerWidth/innerHeight,2,600);camera.position.set(150,125,-170);
 const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,15,0);controls.minDistance=150;controls.maxDistance=320;controls.maxPolarAngle=Math.PI*.48;controls.enableDamping=true;controls.enablePan=false;controls.enableZoom=true;controls.minPolarAngle=.2;controls.maxPolarAngle=1.35;
 scene.add(new T.HemisphereLight(0xc1ddf2,0x07100b,.3));const key=new T.DirectionalLight(0xc1e7ff,2);key.position.set(-40,100,-40);scene.add(key);
@@ -76,7 +76,7 @@ try{
   material.uniforms.size.value=3.2-2.2*ease(23,29,t);
   metrics.time=sequenceTime;metrics.phase=phase.textContent;metrics.particles=N;metrics.titleBottom=title.position.y-24*turn;metrics.titleTurn=turn;
  }
- status.textContent='Drag sideways to orbit';metrics.ready=true;metrics.particleBackend='GPU';
+ status.textContent='Drag sideways to orbit';document.documentElement.classList.add("ready");metrics.ready=true;metrics.particleBackend='GPU';
  document.querySelector('#reset').onclick=()=>{manual=false;update(time);renderer.render(scene,camera)};
  let sampleStart=performance.now(),sampleFrames=0;const frameTimes=[];
  function animate(now){
@@ -93,7 +93,7 @@ try{
 const stage=document.querySelector('#stage');
 function fitStage(){
  const width=Math.max(1,stage.clientWidth),height=Math.max(1,stage.clientHeight);
- camera.aspect=width/height;camera.fov=Math.max(35,2*Math.atan(Math.tan(Math.PI/6)/camera.aspect)*180/Math.PI);
+ camera.aspect=width/height;camera.fov=Math.max(document.documentElement.classList.contains("landing") ? 42 : 35,2*Math.atan(Math.tan(Math.PI/6)/camera.aspect)*180/Math.PI);
  camera.updateProjectionMatrix();renderer.setSize(width,height,false);
  renderer.domElement.style.width='100%';renderer.domElement.style.height='100%';
 }
