@@ -5,7 +5,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {titleHeight,titleTurn,seed} from './motion.mjs';
 import {vertexShader,fragmentShader} from './particles.mjs';
-import {createTurf} from './turf.mjs?v=r19';
+import {createTurf} from './turf.mjs?v=r20';
 const status=document.querySelector('#status');
 const scene=new T.Scene();scene.background=new T.Color('#071315');scene.fog=new T.FogExp2(0x071315,.0015);
 const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio, 2, Math.sqrt(2600000 / (innerWidth * innerHeight))));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.7;document.querySelector('#stage').appendChild(renderer.domElement);
@@ -17,12 +17,13 @@ const ease=(a,b,t)=>{let u=Math.max(0,Math.min(1,(t-a)/(b-a)));return u*u*(3-2*u
 let time=0,manual=false,last=performance.now(),visibleScene=window.parent===window,parentManaged=false;
 addEventListener('message',e=>{if(e.origin===location.origin&&e.source===parent&&e.data?.type==='stadium-visibility'){parentManaged=true;visibleScene=e.data.visible;last=performance.now()}});controls.addEventListener('start',()=>{manual=true});renderer.domElement.style.touchAction='pan-y';renderer.domElement.addEventListener('wheel',e=>e.stopImmediatePropagation(),{capture:true,passive:true});
 new IntersectionObserver(entries=>{if(!parentManaged){visibleScene=entries[0].intersectionRatio>=.75;last=performance.now();}},{threshold:.75}).observe(renderer.domElement);
+if(new URLSearchParams(location.search).has('warm')){parentManaged=true;visibleScene=false;}
 const metrics={ready:false,frames:0,errors:[],renderCalls:0};window.motionMetrics=metrics;window.addEventListener('error',e=>metrics.errors.push(e.message));
 try{
  const draco=new DRACOLoader().setDecoderPath('vendor/examples/jsm/libs/draco/gltf/');const loader=new GLTFLoader().setDRACOLoader(draco);
- const [gltf,standRaw,logoRaw,logo]=await Promise.all([loader.loadAsync('stadium.glb'),fetch('stand-origins.bin').then(r=>r.arrayBuffer()),fetch('logo-points.bin').then(r=>r.arrayBuffer()),fetch('logo.json').then(r=>r.json())]);
+ const [gltf,standRaw,logoRaw,logo,turf]=await Promise.all([loader.loadAsync('stadium.glb'),fetch('stand-origins.bin').then(r=>r.arrayBuffer()),fetch('logo-points.bin').then(r=>r.arrayBuffer()),fetch('logo.json').then(r=>r.json()),createTurf(renderer,document.documentElement.classList.contains('landing'))]);
  const origins=new Float32Array(standRaw),logoPoints=new Float32Array(logoRaw),N=logoPoints.length/2,duration=50;
- const turf=await createTurf(renderer);
+
  // Merge only equal original materials; preserve their textures, geometry and transforms.
  gltf.scene.updateMatrixWorld(true);const batches=new Map();
  gltf.scene.traverse(o=>{if(!o.isMesh)return;for(let p=o;p;p=p.parent)if(/crowd|people|V22 audience particles|V24 Persona/i.test(p.name))return;
@@ -76,6 +77,7 @@ try{
   material.uniforms.size.value=3.2-2.2*ease(23,29,t);
   metrics.time=sequenceTime;metrics.phase=phase.textContent;metrics.particles=N;metrics.titleBottom=title.position.y-24*turn;metrics.titleTurn=turn;
  }
+ update(0);renderer.render(scene,camera);
  status.textContent='Drag sideways to orbit';document.documentElement.classList.add("ready");metrics.ready=true;metrics.particleBackend='GPU';
  document.querySelector('#reset').onclick=()=>{manual=false;update(time);renderer.render(scene,camera)};
  let sampleStart=performance.now(),sampleFrames=0;const frameTimes=[];
@@ -89,7 +91,7 @@ try{
   requestAnimationFrame(animate);
  }
  requestAnimationFrame(animate);
-}catch(e){status.textContent='The stadium could not load. Reload to retry.';metrics.errors.push(String(e));console.error(e)}
+}catch(e){document.documentElement.classList.add('failed');status.textContent='The stadium could not load. Reload to retry.';metrics.errors.push(String(e));console.error(e)}
 const stage=document.querySelector('#stage');
 function fitStage(){
  const width=Math.max(1,stage.clientWidth),height=Math.max(1,stage.clientHeight);

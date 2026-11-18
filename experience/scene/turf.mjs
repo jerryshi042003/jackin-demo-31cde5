@@ -1,8 +1,10 @@
 import * as T from 'three';
 // Photographic surface: Poly Haven grass_ground (CC0). Traffic wear is a
 // deterministic, designed match-wear pattern, not a survey of this pitch.
-export async function createTurf(renderer){
- const loader=new T.TextureLoader();const [map,normalMap]=await Promise.all([loader.loadAsync('textures/grass-diffuse.jpg'),loader.loadAsync('textures/grass-normal.jpg')]);
+export async function createTurf(renderer,overview){
+ const loader=new T.TextureLoader();
+ const suffix=overview ? '-1024.webp' : '.jpg';
+ const [map,normalMap]=await Promise.all(['diffuse','normal'].map(kind=>loader.loadAsync('textures/grass-'+kind+suffix)));
  map.colorSpace=T.SRGBColorSpace;
  for(const texture of [map,normalMap]){texture.wrapS=texture.wrapT=T.RepeatWrapping;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());texture.minFilter=T.LinearMipmapLinearFilter;texture.magFilter=T.LinearFilter;texture.generateMipmaps=true;}
  const material=new T.MeshStandardMaterial({map,normalMap,normalScale:new T.Vector2(.22,.22),roughness:.94,metalness:0});

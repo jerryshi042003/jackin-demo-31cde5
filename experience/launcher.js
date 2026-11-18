@@ -4,10 +4,17 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)');let mode=null,stadi
 function syncPreview(){for(const v of [preview,gamePreview]){if(reduced.matches||document.hidden||dialog.open)v.pause();else v.play().catch(()=>{});}}
 const landingStage = document.querySelector('#landing-stage');
 function mountLanding() {
- if (landingStage.firstElementChild || dialog.open) return;
+ if (dialog.open) return;
+ const prepared = landingStage.querySelector('iframe');
+ if (prepared) {
+   const resume = () => prepared.contentWindow.postMessage({type:'stadium-visibility',visible:true}, location.origin);
+   prepared.addEventListener('load',resume,{once:true});
+   resume();
+   return;
+ }
  const frame = document.createElement('iframe');
  frame.title = 'Orbit the stadium';
- frame.src = 'scene/?landing&v=r19';
+ frame.src = 'scene/?landing&v=r20';
  landingStage.append(frame);
 }
 function fullScreen(){try{document.documentElement.requestFullscreen?.().catch(()=>{});}catch{/* Viewport-filling dialog remains usable. */}}
@@ -26,7 +33,7 @@ function open(next,userGesture=true,push=true){
    if(userGesture && typeof film.webkitEnterFullscreen==='function'){film.removeAttribute('playsinline');try{film.webkitEnterFullscreen();}catch{}}
    film.play().catch(error=>{if(error.name!=='AbortError')playError.hidden=false;});
   }
-  stadium=document.createElement('iframe');stadium.title='Interactive stadium: wire, circular cloud, flood and Neuromancer';stadium.src='scene/?v=r19';stadium.loading='lazy';stadiumHost.replaceChildren(stadium);observer.observe(stadiumHost);
+  stadium=document.createElement('iframe');stadium.title='Interactive stadium: wire, circular cloud, flood and Neuromancer';stadium.src='scene/?v=r20';stadium.loading='lazy';stadiumHost.replaceChildren(stadium);observer.observe(stadiumHost);
   stadium.addEventListener('load',()=>{const box=stadiumHost.getBoundingClientRect();stadium.contentWindow.postMessage({type:'stadium-visibility',visible:Math.max(0,Math.min(innerHeight,box.bottom)-Math.max(0,box.top))/box.height>=.75},location.origin)});
  }else{
   film.pause();const iframe=document.createElement('iframe');iframe.title='Jack In demo game and discount reveal';iframe.src='../';iframe.allow='fullscreen; autoplay';iframe.allowFullscreen=true;host.replaceChildren(iframe);
